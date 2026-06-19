@@ -12,7 +12,7 @@ def cargar_modelo():
 
 modelo = cargar_modelo()
 
-st.title("SHOT LOGGERs")
+st.title("SHOT LOGGER")
 
 # ---------------- ESTADOS ----------------
 
