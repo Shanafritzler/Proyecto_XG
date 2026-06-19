@@ -12,7 +12,6 @@ def cargar_modelo():
 
 modelo = cargar_modelo()
 
-
 st.title("SHOT LOGGERs")
 
 # ---------------- ESTADOS ----------------
@@ -23,14 +22,22 @@ if "shots" not in st.session_state:
 if "last_click" not in st.session_state:
     st.session_state["last_click"] = None
 
+#metadatos
+st.subheader("Información del partido")
+
+jugador = st.text_input("Jugador")
+
+equipo = st.text_input("Equipo")
+
+rival = st.text_input("Rival")
 
 # ---------------- TIPOS DE TIRO ----------------
 
 play_types = {
     "Jugada": {"color": "red", "marker": "o"},
-    "Tiro libre": {"color": "blue", "marker": "x"},
-    "Corner": {"color": "orange", "marker": "s"},
-    "Penal": {"color": "green", "marker": "d"}
+    "Tiro libre": {"color": "blue", "marker": "o"},
+    "Corner": {"color": "orange", "marker": "o"},
+    "Penal": {"color": "green", "marker": "o"}
 }
 
 play_type = st.selectbox(
@@ -42,27 +49,25 @@ play_type = st.selectbox(
 
 pitch = Pitch(
     pitch_type="statsbomb",
-    half=True,
+    half=False,
     pitch_color="white",
     line_color="black",
-    pad_left=0,
-    pad_right=0,
-    pad_top=0,
-    pad_bottom=0
+ 
 )
-fig, ax = pitch.draw(figsize=(8, 6))
+fig, ax = pitch.draw(figsize=(7, 5))
 
 # Eliminar márgenes de matplotlib
-fig.subplots_adjust(
-    left=0,
-    right=1,
-    top=1,
-    bottom=0
-)
+#fig.subplots_adjust(
+  #  left=0,
+   # right=1,
+    #top=1,
+    #bottom=0
+#)
 
 # Obtener dimensiones reales de la cancha
 xmin, xmax = ax.get_xlim()
 ymax, ymin = ax.get_ylim()
+
 
 # ---------------- DIBUJAR TIROS EXISTENTES ----------------
 
@@ -102,11 +107,10 @@ if value and value != st.session_state["last_click"]:
     img_width = value["width"]
     img_height = value["height"]
 
-    # Conversión usando dimensiones reales
+    #Convertir el click a coordenadas reales
     x_pitch = xmin + (value["x"] / img_width) * (xmax - xmin)
 
     y_pitch = ymin + (value["y"] / img_height) * (ymax - ymin)
-
       # ---------------- CALCULAR VARIABLES ----------------
 
     angulo = calcular_angulo(
@@ -157,7 +161,10 @@ if value and value != st.session_state["last_click"]:
 
     st.session_state["shots"].append(
         {
-            
+                 
+                "jugador": jugador,
+                "equipo": equipo,
+                "rival": rival,
                 "x": round(x_pitch,2),
                 "y": round(y_pitch,2),
                 "tipo": play_type,
