@@ -364,7 +364,7 @@ if pagina == "Registrar":
 
 if pagina == "Analisis":
 
-    st.title("Analisis de tiros")
+    st.title("Análisis de tiros")
 
     if len(st.session_state["shots"]) == 0:
 
