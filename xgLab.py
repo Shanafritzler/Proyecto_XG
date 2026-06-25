@@ -9,6 +9,7 @@ from funciones import (
     dentro_area
 )
 import joblib
+from streamlit_option_menu import option_menu
 
 # =====================
 # CONFIG
@@ -33,57 +34,174 @@ modelo = cargar_modelo()
 # SESSION STATE
 # =====================
 
+#estilo de la app
+st.markdown("""
+<style>
+
+.stApp {
+    background: linear-gradient(
+        135deg,
+        #141414,
+        #1E2430,
+        #2B3445
+    );
+}
+
+[data-testid="stAppViewContainer"] {
+    background: inherit;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+#estilo de los botones
+st.markdown("""
+<style>
+
+/* Botones de la navbar */
+
+.stButton > button{
+
+    background-color: transparent;
+
+    border: none;
+
+    color: white;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    padding:0;
+
+}
+
+/* Hover */
+
+.stButton > button:hover{
+
+    color:#4CC9F0;
+
+    background-color: transparent;
+
+    border:none;
+
+}
+
+/* Botón activo */
+
+.stButton > button:focus{
+
+    box-shadow:none;
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+st.markdown("""
+<style>
+
+.block-container{
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+</style>
+""", unsafe_allow_html=True)
+espacio1, col_logo, espacio2, c1, c2, c3 = st.columns([2,2,1,1.5,1.5,1]) #agrego un espacio a la izquierda y a la derecha del logo para centrarlo
+#columna para el logo
+with col_logo:
+ st.markdown(
+    """
+    <h1 style="
+        font-size:25px;
+        margin:0;
+        padding:0;
+    ">
+    ⚽ xGLab
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+
+#columnas para los botones de la navbar
+with c1:
+     if st.button("Registrar tiros"):
+        st.session_state["pagina"] = "Registrar"
+
+with c2:
+     if st.button("Análisis de tiros"):
+        st.session_state["pagina"] = "Analisis"
+
+with c3:
+    if st.button("Acerca de"):
+        st.session_state["pagina"] = "Acerca"
+
 if "shots" not in st.session_state:
     st.session_state["shots"] = []
 
 if "last_click" not in st.session_state:
     st.session_state["last_click"] = None
 
-# =====================
-# MENU
-# =====================
 
-pagina = st.sidebar.radio(
-    "Opciones",
-    [
-        "⚽ Calculadora xG",
-        "📊 Análisis de Tiros"
-    ]
-)
+#definimos por defecto la página a mostrar al iniciar la app
+if "pagina" not in st.session_state:
+    st.session_state["pagina"] = "Registrar"
+
+pagina = st.session_state["pagina"]
 
 # ==================================================
 # LOGGER
 # ==================================================
 
-if pagina == "⚽ Calculadora xG":
+if pagina == "Registrar":
+    st.markdown(
+    """
+    <div style="
+    text-align:center;
+    margin-top:50px;
+    margin-bottom:70px;
+    ">
 
-    st.title("⚽ Calculadora xG")
+    <h2>Calculadora y análisis de tiros</h2>
 
-    st.subheader("Información del partido")
+    </div>
+    """,
+    unsafe_allow_html=True)
 
-    c1_meta, c2_meta, c3_meta = st.columns(3)
 
-    with c1_meta:
-        jugador = st.text_input("Jugador")
+    espacio_izq, col_form, col_pitch, espacio_der = st.columns(
+    [0.6, 1, 2, 0.4])
 
-    with c2_meta:
-        equipo = st.text_input("Equipo")
+    with col_form:
 
-    with c3_meta:
-        rival = st.text_input("Rival")
+        st.subheader("Información del partido")
 
-    play_types = {
+        jugador = st.text_input(
+        "Jugador"
+        )
+
+        equipo = st.text_input(
+            "Equipo"
+        )
+
+        rival = st.text_input(
+          "Rival"
+        )   
+
+        play_types = {
         "Jugada": {"color": "red", "marker": "o"},
         "Tiro libre": {"color": "blue", "marker": "o"},
         "Corner": {"color": "orange", "marker": "o"},
         "Penal": {"color": "green", "marker": "o"}
-    }
+        }
 
-    play_type = st.selectbox(
-        "Tipo de tiro",
-        list(play_types.keys())
-    )
+        play_type = st.selectbox(
+          "Tipo de tiro",
+         list(play_types.keys())
+        )
 
+    
     pitch = Pitch(
         pitch_type="statsbomb",
         half=False,
@@ -132,7 +250,8 @@ if pagina == "⚽ Calculadora xG":
         pad_inches=0
     )
 
-    value = streamlit_image_coordinates(
+    with col_pitch:
+        value = streamlit_image_coordinates(
         "cancha.png",
         key="cancha"
     )
@@ -243,9 +362,9 @@ if pagina == "⚽ Calculadora xG":
 # DASHBOARD
 # ==================================================
 
-if pagina == "📊 Análisis de Tiros":
+if pagina == "Analisis":
 
-    st.title("📊 Análisis de Tiros")
+    st.title("Analisis de tiros")
 
     if len(st.session_state["shots"]) == 0:
 
@@ -380,7 +499,7 @@ if pagina == "📊 Análisis de Tiros":
     # SHOT MAP
     # =====================
 
-    st.subheader("🗺️ Shot Map")
+    st.subheader("Shot Map")
 
     fig = go.Figure()
 
@@ -588,7 +707,7 @@ if pagina == "📊 Análisis de Tiros":
         else 0
     )
 
-    st.subheader("📝 Análisis")
+    st.subheader("Análisis")
 
     texto = []
 
@@ -630,3 +749,148 @@ if pagina == "📊 Análisis de Tiros":
         f"El {inside_pct:.1f}% de los disparos se produjo dentro del área y "
         f"la ocasión de mayor peligro alcanzó {ocasion_mas_clara:.2f} xG."
     )
+
+if pagina == "Acerca":
+
+    # =====================================
+    # TITULO
+    # =====================================
+
+    st.markdown("""
+    <div style="
+        text-align:center;
+        margin-top:30px;
+        margin-bottom:50px;
+    ">
+        <h1>Acerca de xGLab</h1>
+
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # =====================================
+    # DOS COLUMNAS PRINCIPALES
+    # =====================================
+
+    col_mision, col_features = st.columns([1,1])
+
+    # =====================================
+    # MISION
+    # =====================================
+
+    with col_mision:
+
+        st.markdown("## Nuestra Misión")
+
+        st.markdown("""
+        En xGLab nuestra misión es democratizar el análisis
+        de datos en el fútbol.
+
+        Queremos que entrenadores, analistas, jugadores y
+        aficionados tengan acceso a herramientas intuitivas
+        que les permitan comprender mejor el juego y tomar
+        decisiones basadas en datos.
+
+        Creemos que los datos pueden transformar la manera
+        en que entendemos el fútbol y xGLab nace para ser
+        tu aliado en ese camino.
+        """)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Card xG
+
+        st.markdown("""
+        <div style="
+            padding:25px;
+            border-radius:15px;
+            border:1px solid rgba(255,255,255,0.1);
+            background-color: rgba(255,255,255,0.03);
+        ">
+
+        <h3>¿Qué es xG?</h3>
+
+        <p>
+        El Expected Goals (xG) mide la calidad de un tiro
+        considerando factores como la distancia, el ángulo,
+        la ubicación y el contexto de la jugada.
+        </p>
+
+        <p>
+        No es una predicción exacta, sino una métrica que
+        ayuda a entender qué oportunidades tenían más
+        probabilidades de convertirse en gol.
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    # =====================================
+    # FEATURES
+    # =====================================
+
+    with col_features:
+
+        st.markdown("## Características")
+
+        features = [
+            (
+                "1",
+                "Registro de tiros",
+                "Marca tiros sobre el mapa de la cancha de forma sencilla."
+            ),
+            (
+                "2",
+                "Cálculo de xG",
+                "Obtén la probabilidad de gol utilizando un modelo entrenado."
+            ),
+            (
+                "3",
+                "KPIs y análisis",
+                "Visualiza métricas para evaluar rendimiento individual y colectivo."
+            ),
+            (
+                "4",
+                "Exportación",
+                "Descarga los datos registrados en formato CSV."
+            )
+        ]
+
+        for numero, titulo, descripcion in features:
+
+            st.markdown(f"""
+            <div style="
+                padding:20px;
+                margin-bottom:15px;
+                border-radius:15px;
+                border:1px solid rgba(255,255,255,0.08);
+                background-color: rgba(255,255,255,0.03);
+            ">
+
+            <h4>
+            {numero}. {titulo}
+            </h4>
+
+            <p style="color:#B8B8B8;">
+            {descripcion}
+            </p>
+
+            </div>
+            """, unsafe_allow_html=True)
+            
+st.markdown("---")
+
+st.markdown("""
+<div style="
+    text-align:center;
+    padding:20px;
+    margin-top:25px;
+    color:#B0B0B0;
+    font-size:14px;
+">
+    <p><strong>xGLab</strong></p>
+    <p> Mail: contacto@xglab.com</p>
+    <p> Tel: +54 11 1234-5678</p>
+</div>
+""", unsafe_allow_html=True)
+        
